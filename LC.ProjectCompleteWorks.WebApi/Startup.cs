@@ -59,7 +59,7 @@ namespace LC.ProjectCompleteWorks.WebApi
                 options.AddPolicy("AllowSameDomain", policy =>
                 {
                     // 設定允許跨域的來源，有多個的話可以用 `,` 隔開
-                    policy.WithOrigins("http://127.0.0.1:8011", "http://localhost:50383")
+                    policy.WithOrigins("http://127.0.0.1:8011", "http://localhost:50383", "http://localhost:60424")
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     //.AllowAnyOrigin()//允许所有来源的主机访问
