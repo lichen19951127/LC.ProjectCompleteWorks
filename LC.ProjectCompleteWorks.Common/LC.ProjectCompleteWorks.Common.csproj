@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="3.0.67" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LC.ProjectCompleteWorks.Entitys\LC.ProjectCompleteWorks.Entitys.csproj" />
+  </ItemGroup>
+
+</Project>

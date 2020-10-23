@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin" />
+    <meta name="description" content="JWT认证简单介绍 关于Jwt的介绍网上很多，此处不在赘述，我们主要看看jwt的结构。 JWT主要由三部分组成，如下： 包含token的元数据，主要是加密算法，和签名的类型，如下面的信息，说明了 加密" />
+    <meta property="og:description" content="JWT认证简单介绍 关于Jwt的介绍网上很多，此处不在赘述，我们主要看看jwt的结构。 JWT主要由三部分组成，如下： 包含token的元数据，主要是加密算法，和签名的类型，如下面的信息，说明了 加密" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>ASP.Net Core 3.1 中使用JWT认证 - Liuww06 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=kXxbcm7tkkASG2_xwyD6Kw4CzHe0bT3mi0jyCb8YspQ" />
+    <link id="MainCss" rel="stylesheet" href="/skins/custom/bundle-custom.min.css?v=1ssrnY3Il79Ok472qeVrpxlSprSXcHhYPgZC5S3wtVM" />
+    <link type="text/css" rel="stylesheet" href="https://www.cnblogs.com/liuww/custom.css?v=KxM4aUMz0lsYrOgeij5L/facGxQ=" />
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/custom/bundle-custom-mobile.min.css?v=KtAK50iXMDcU4jOl_mm1P0j3gXUtdRHDhFdu7YlsVVg" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/liuww/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/liuww/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/liuww/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 204293;
+        var currentBlogApp = 'liuww';
+        var cb_enable_mathjax = false;
+        var isLogined = true;
+        var isBlogOwner = false;
+        var skinName = 'Custom';
+        var visitorUserId = '052ebc32-ae5b-4791-7fbd-08d5c950b921';
+    </script>
+        <script>
+            var currentPostDateAdded = '2020-01-10 05:27';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=kKx3DBtpvO8r97BzPmHJseQ10fGHkI-ZwMh4FA0eEd0"></script>
+    
+    
+    
+</head>
+<body class="no-navbar">
+    <a name="top"></a> 
+    <div id="top_nav" class="navbar navbar-custom">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding">
+                    <a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a>
+                </li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=oS4PkibyMjZ9rGD5XAcLt99uW_s76Javy2up4dbnZNY" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" onclick="logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signin/?returnUrl=https://www.cnblogs.com/">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div id="page_begin_html">
+        <a href="https://github.com/liuww06" target="_blank"><img style="position: fixed; top: 0; right: 0; border: 0; z-index:9999;" src="https://images.cnblogs.com/cnblogs_com/jackson0714/779808/o_github.png" alt="Go to my github"></a>
+    </div>
+    
+<!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+        <a id="lnkBlogLogo" href="https://www.cnblogs.com/liuww/"><img id="blogLogo" src="/skins/custom/images/logo.gif" alt="返回主页" /></a>		
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/liuww/">小伟06</a>
+</h1>
+<h2>
+
+</h2>
+
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/liuww/">
+首页</a>
+</li>
+<li>
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+<li>
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/Liuww06">
+联系</a></li>
+<li>
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/liuww/rss/">
+订阅</a>
+<!--<partial name="./Shared/_XmlLink.cshtml" model="Model" /></li>--></li>
+<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+
+		<div class="blogStats">
+			
+			<span id="stats_post_count">随笔 - 
+10&nbsp; </span>
+<span id="stats_article_count">文章 - 
+0&nbsp; </span>
+<span id="stats-comment_count">评论 - 
+34</span>
+
+			
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		<div id="post_detail">
+    <!--done-->
+    <div id="topics">
+        <div class="post">
+            <h1 class = "postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/liuww/p/12177272.html">
+    <span>ASP.Net Core 3.1 中使用JWT认证</span>
+    
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                
+<div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+    <h1 id="jwt认证简单介绍">JWT认证简单介绍</h1>
+<p>关于Jwt的介绍网上很多，此处不在赘述，我们主要看看jwt的结构。</p>
+<p>JWT主要由三部分组成，如下：</p>
+<pre><code class="language-textile">HEADER.PAYLOAD.SIGNATURE
+</code></pre>
+<p><code>HEADER</code>包含token的元数据，主要是加密算法，和签名的类型，如下面的信息，说明了</p>
+<p>加密的对象类型是JWT，加密算法是HMAC SHA-256</p>
+<pre><code class="language-json">{"alg":"HS256","typ":"JWT"}
+</code></pre>
+<p>然后需要通过BASE64编码后存入token中</p>
+<pre><code class="language-textile">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9&nbsp;&nbsp;&nbsp;&nbsp;
+</code></pre>
+<p><code>Payload</code>主要包含一些声明信息（claim），这些声明是key-value对的数据结构。</p>
+<p>通常如用户名，角色等信息，过期日期等，因为是未加密的，所以不建议存放敏感信息。</p>
+<pre><code class="language-json">{"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name":"admin","exp":1578645536,"iss":"webapi.cn","aud":"WebApi"}
+</code></pre>
+<p>也需要通过BASE64编码后存入token中</p>
+<pre><code class="language-textile">eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJleHAiOjE1Nzg2NDU1MzYsImlzcyI6IndlYmFwaS5jbiIsImF1ZCI6IldlYkFwaSJ9 
+</code></pre>
+<p><code>Signature</code>jwt要符合jws(Json Web Signature)的标准生成一个最终的签名。把编码后的Header和Payload信息加在一起，然后使用一个强加密算法，如 HmacSHA256，进行加密。HS256(BASE64(Header).Base64(Payload)，secret)</p>
+<pre><code class="language-textile">2_akEH40LR2QWekgjm8Tt3lesSbKtDethmJMo_3jpF4
+</code></pre>
+<p>最后生成的token如下</p>
+<pre><code class="language-latex">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJleHAiOjE1Nzg2NDU1MzYsImlzcyI6IndlYmFwaS5jbiIsImF1ZCI6IldlYkFwaSJ9.2_akEH40LR2QWekgjm8Tt3lesSbKtDethmJMo_3jpF4
+</code></pre>
+<p></p>
+<h1 id="开发环境">开发环境</h1>
+<p>框架：asp.net 3.1</p>
+<p>IDE：VS2019</p>
+<h1 id="aspnet-31-webapi中使用jwt认证">ASP.NET 3.1 Webapi中使用JWT认证</h1>
+<p>命令行中执行执行以下命令，创建webapix项目：</p>
+<pre><code class="language-powershell">dotnet new webapi -n Webapi -o WebApi
+</code></pre>
+<p>特别注意的时，3.x默认是没有jwt的Microsoft.AspNetCore.Authentication.JwtBearer库的，所以需要手动添加NuGet Package，切换到项目所在目录，执行 .net cli命令</p>
+<pre><code class="language-powershell">dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer --version 3.1.0
+</code></pre>
+<p>创建一个简单的POCO类，用来存储签发或者验证jwt时用到的信息</p>
+<pre><code class="language-csharp">using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Webapi.Models
+
+{
+    public class TokenManagement
+    {
+        [JsonProperty("secret")]
+        public string Secret { get; set; }
+
+        [JsonProperty("issuer")]
+        public string Issuer { get; set; }
+
+        [JsonProperty("audience")]
+        public string Audience { get; set; }
+
+        [JsonProperty("accessExpiration")]
+        public int AccessExpiration { get; set; }
+
+        [JsonProperty("refreshExpiration")]
+        public int RefreshExpiration { get; set; }
+    }
+}
+</code></pre>
+<p>然后在 <code>appsettings.Development.json</code> 增加jwt使用到的配置信息（如果是生成环境在<code>appsettings.json</code>添加即可）</p>
+<pre><code class="language-json">"tokenManagement": {
+        "secret": "123456",
+        "issuer": "webapi.cn",
+        "audience": "WebApi",
+        "accessExpiration": 30,
+        "refreshExpiration": 60
+    }
+</code></pre>
+<p>然后再startup类的ConfigureServices方法中增加读取配置信息</p>
+<pre><code class="language-csharp">public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddControllers();
+            services.Configure&lt;TokenManagement&gt;(Configuration.GetSection("tokenManagement"));
+            var token = Configuration.GetSection("tokenManagement").Get&lt;TokenManagement&gt;();
+
+        }
+</code></pre>
+<p>到目前为止，我们完成了一些基础工作，下面再webapi中注入jwt的验证服务，并在中间件管道中启用authentication中间件。</p>
+<p>startup类中要引用jwt验证服务的命名空间</p>
+<pre><code class="language-csharp">using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+</code></pre>
+<p>然后在<code>ConfigureServices</code>方法中添加如下逻辑</p>
+<pre><code class="language-csharp">services.AddAuthentication(x =&gt;
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(x =&gt;
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(token.Secret)),
+                    ValidIssuer = token.Issuer,
+                    ValidAudience = token.Audience,
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+</code></pre>
+<p>再<code>Configure</code>方法中启用验证</p>
+<pre><code class="language-csharp">public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+
+            app.UseHttpsRedirection();
+
+            app.UseAuthentication();
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =&gt;
+            {
+                endpoints.MapControllers();
+            });
+        }
+</code></pre>
+<hr>
+<p>上面完成了JWT验证的功能，下面就需要增加签发token的逻辑。我们需要增加一个专门用来用户认证和签发token的控制器，命名成<code>AuthenticationController</code>，同时增加一个请求的DTO类</p>
+<pre><code class="language-csharp">public class LoginRequestDTO
+    {
+        [Required]
+        [JsonProperty("username")]
+        public string Username { get; set; }
+
+
+        [Required]
+        [JsonProperty("password")]
+        public string Password { get; set; }
+    }
+</code></pre>
+<pre><code class="language-csharp">[Route("api/[controller]")]
+    [ApiController]
+    public class AuthenticationController : ControllerBase
+    {
+        [AllowAnonymous]
+         [HttpPost, Route("requestToken")]
+        public ActionResult RequestToken([FromBody] LoginRequestDTO request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid Request");
+            }
+
+            return Ok();
+
+        }
+    }
+</code></pre>
+<p>目前上面的控制器只实现了基本的逻辑，下面我们要创建签发token的服务，去完成具体的业务。第一步我们先创建对应的服务接口，命名为<code>IAuthenticateService</code></p>
+<pre><code class="language-csharp">public interface IAuthenticateService
+    {
+        bool IsAuthenticated(LoginRequestDTO request, out string token);
+    }
+</code></pre>
+<p>接下来，实现接口</p>
+<pre><code class="language-csharp">public class TokenAuthenticationService : IAuthenticateService
+    {
+        public bool IsAuthenticated(LoginRequestDTO request, out string token)
+        {
+            throw new NotImplementedException();
+        }
+    }
+</code></pre>
+<p>在<code>Startup</code>的<code>ConfigureServices</code>方法中注册服务</p>
+<pre><code class="language-csharp">services.AddScoped&lt;IAuthenticateService, TokenAuthenticationService&gt;();
+</code></pre>
+<p>在Controller中注入IAuthenticateService服务，并完善action</p>
+<pre><code class="language-csharp">public class AuthenticationController : ControllerBase
+    {
+        private readonly IAuthenticateService _authService;
+        public AuthenticationController(IAuthenticateService authService)
+        {
+            this._authService = authService;
+        }
+        [AllowAnonymous]
+         [HttpPost, Route("requestToken")]
+        public ActionResult RequestToken([FromBody] LoginRequestDTO request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid Request");
+            }
+
+            string token;
+            if (_authService.IsAuthenticated(request, out token))
+            {
+                return Ok(token);
+            }
+
+            return BadRequest("Invalid Request");
+
+        }
+    }
+</code></pre>
+<p>正常情况，我们都会根据请求的用户和密码去验证用户是否合法，需要连接到数据库获取数据进行校验，我们这里为了方便，假设任何请求的用户都是合法的。</p>
+<p>这里单独加个用户管理的服务，不在IAuthenticateService这个服务里面添加相应逻辑，主要遵循了<code>职责单一原则</code>。首先和上面一样，创建一个服务接口<code>IUserService</code></p>
+<pre><code class="language-csharp">public interface IUserService
+    {
+        bool IsValid(LoginRequestDTO req);
+    }
+</code></pre>
+<p>实现<code>IUserService</code>接口</p>
+<pre><code class="language-csharp">public class UserService : IUserService
+    {
+        //模拟测试，默认都是人为验证有效
+        public bool IsValid(LoginRequestDTO req)
+        {
+            return true;
+        }
+    }
+</code></pre>
+<p>同样注册到容器中</p>
+<pre><code class="language-csharp">services.AddScoped&lt;IUserService, UserService&gt;();
+</code></pre>
+<p>接下来，就要完善TokenAuthenticationService签发token的逻辑，首先要注入IUserService 和 TokenManagement，然后实现具体的业务逻辑，这个token的生成还是使用的Jwt的类库提供的api，具体不详细描述。</p>
+<blockquote>
+<p>特别注意下TokenManagement的注入是已IOptions的接口类型注入的，还记得在Startpup中吗？我们是通过配置项的方式注册TokenManagement类型的。</p>
+</blockquote>
+<pre><code class="language-csharp"> public class TokenAuthenticationService : IAuthenticateService
+    {
+        private readonly IUserService _userService;
+        private readonly TokenManagement _tokenManagement;
+        public TokenAuthenticationService(IUserService userService, IOptions&lt;TokenManagement&gt; tokenManagement)
+        {
+            _userService = userService;
+            _tokenManagement = tokenManagement.Value;
+        }
+        public bool IsAuthenticated(LoginRequestDTO request, out string token)
+        {
+            token = string.Empty;
+            if (!_userService.IsValid(request))
+                return false;
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Name,request.Username)
+            };
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenManagement.Secret));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var jwtToken = new JwtSecurityToken(_tokenManagement.Issuer, _tokenManagement.Audience, claims, expires: DateTime.Now.AddMinutes(_tokenManagement.AccessExpiration), signingCredentials: credentials);
+
+            token = new JwtSecurityTokenHandler().WriteToken(jwtToken);
+
+            return true;
+
+        }
+    }
+</code></pre>
+<p>准备好测试试用的APi，打上Authorize特性，表明需要授权！</p>
+<pre><code class="language-csharp">[ApiController]
+    [Route("[controller]")]
+    [Authorize]
+    public class WeatherForecastController : ControllerBase
+    {
+        private static readonly string[] Summaries = new[]
+        {
+            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+        };
+
+        private readonly ILogger&lt;WeatherForecastController&gt; _logger;
+
+        public WeatherForecastController(ILogger&lt;WeatherForecastController&gt; logger)
+        {
+            _logger = logger;
+        }
+
+        [HttpGet]
+        public IEnumerable&lt;WeatherForecast&gt; Get()
+        {
+            var rng = new Random();
+            return Enumerable.Range(1, 5).Select(index =&gt; new WeatherForecast
+            {
+                Date = DateTime.Now.AddDays(index),
+                TemperatureC = rng.Next(-20, 55),
+                Summary = Summaries[rng.Next(Summaries.Length)]
+            })
+            .ToArray();
+        }
+    }
+</code></pre>
+<p>支持我们可以测试验证了，我们可以使用postman来进行http请求，先启动http服务，获取url，先测试一个访问需要授权的接口，但没有携带token信息，返回是401，表示未授权</p>
+<p><img src="https://img2018.cnblogs.com/blog/683694/202001/683694-20200110184421844-68601763.png" alt="" loading="lazy"></p>
+<p>下面我们先通过认证接口，获取token，居然报错，查询了下，发现HS256算法的秘钥长度最新为128位，转换成字符至少16字符，之前设置的秘钥是123456，所以导致异常。</p>
+<pre><code class="language-csharp">System.ArgumentOutOfRangeException: IDX10603: Decryption failed. Keys tried: 'HS256'. Exceptions caught: '128'. token: '48' (Parameter 'KeySize') at
+</code></pre>
+<p>更新秘钥</p>
+<pre><code class="language-json"> "tokenManagement": {
+        "secret": "123456123456123456",
+        "issuer": "webapi.cn",
+        "audience": "WebApi",
+        "accessExpiration": 30,
+        "refreshExpiration": 60
+    }
+</code></pre>
+<p>重新发起请求，成功获取token</p>
+<p><code>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJleHAiOjE1Nzg2NDUyMDMsImlzcyI6IndlYmFwaS5jbiIsImF1ZCI6IldlYkFwaSJ9.AehD8WTAnEtklof2OJsvg0U4_o8_SjdxmwUjzAiuI-o</code></p>
+<p><img src="https://img2018.cnblogs.com/blog/683694/202001/683694-20200110184411897-1612763683.png" alt="" loading="lazy"></p>
+<p>把token带到之前请求的api中，重新测试，成功获取数据<br>
+<img src="https://img2018.cnblogs.com/blog/683694/202001/683694-20200110184403969-331881185.png" alt="" loading="lazy"></p>
+<h1 id="总结">总结</h1>
+<p>基于token的认证方式，让我们构建分布式/松耦合的系统更加容易。任何地方生成的token，只有拥有相同秘钥，就可以再任何地方进行签名校验。</p>
+<p>当然要用好jwt认证方式，还有其他安全细节需要处理，比如palyload中不能存放敏感信息，使用https的加密传输方式等等，可以根据业务实际需要再进一步安全加固！</p>
+<p>同时我们也发现使用token，就可以摆脱cookie的限制，所以JWT是移动app开发的首选！</p>
+
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2020-01-10 17:27</span>&nbsp;
+<a href="https://www.cnblogs.com/liuww/">Liuww06</a>&nbsp;
+阅读(<span id="post_view_count">8068</span>)&nbsp;
+评论(<span id="post_comment_count">31</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=12177272" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(12177272);return false;">收藏</a></div>
+        </div>
+	    
+	    
+    </div><!--end: topics 文章、评论容器-->
+</div>
+<script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 204293, cb_blogApp = 'liuww', cb_blogUserGuid = 'dad24f89-c458-e411-b908-9dcfd8948a71';
+    var cb_entryId = 12177272, cb_entryCreatedDate = '2020-01-10 17:27', cb_postType = 1;
+    loadViewCount(cb_entryId);
+</script><a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<script>
+    var commentManager = new blogCommentManager();
+    commentManager.renderComments(0);
+</script>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="c_ad_block">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_news"></div>
+    <div id="cnblogs_c2" class="c_ad_block">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_kb"></div>
+    <div id="HistoryToday" class="c_ad_block"></div>
+    <script type="text/javascript">
+        fixPostBody();
+        deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);        deliverT2();
+        deliverC1C2();
+        loadNewsAndKb();
+        loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);        LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+        GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+        loadOptUnderPost();
+        GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			<div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_ad"></div>
+			<div id="blog-calendar" style="display:none"></div><script>loadBlogDefaultCalendar();</script>
+			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+			</div>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		<!--done-->
+Copyright &copy; 2020 Liuww06
+<br /><span id="poweredby">Powered by .NET 5.0.0-rc.2.20475.5 on Kubernetes</span>
+
+
+
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+    
+</body>
+</html>
